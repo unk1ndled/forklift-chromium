@@ -147,33 +147,30 @@
    * Enhance a paywalled review page by fetching the JSON review, reconstructing
    * HTML from review.body (array), and replacing BodyWrapper content.
    */
-  function enhancePaywalledPage() {
-    fetchReviewJson()
-      .then((data) => {
-        const body = data && data.review && data.review.body;
-        if (!Array.isArray(body)) {
-          console.warn('[Forklift] review.body is not an array');
-          return;
-        }
-        const html = bodyArrayToHtml(body);
-        const bodyWrapper = document.querySelector('[data-testid="BodyWrapper"]');
-        if (!bodyWrapper) {
-          console.warn('[Forklift] BodyWrapper not found');
-          return;
-        }
-        if (typeof Sanitizer !== 'undefined') {
-          const sanitized = new Sanitizer().sanitizeFor('div', html);
-          if (sanitized) bodyWrapper.replaceChildren(...sanitized.childNodes);
-        } else {
-          const doc = new DOMParser().parseFromString(html, 'text/html');
-          bodyWrapper.replaceChildren(...doc.body.childNodes);
-        }
 
-        const score = data && data.review && data.review.headerProps && data.review.headerProps.musicRating && data.review.headerProps.musicRating.score;
-        updatePageWithScore(score);
-      })
-      .catch((err) => console.warn('[Forklift] Failed to fetch review JSON', err));
-  }
+
+  function enhancePaywalledPage() {
+  fetchReviewJson()
+    .then((data) => {
+      const body = data && data.review && data.review.body;
+      if (!Array.isArray(body)) {
+        console.warn('[Forklift] review.body is not an array');
+        return;
+      }
+      const html = bodyArrayToHtml(body);
+      const bodyWrapper = document.querySelector('[data-testid="BodyWrapper"]');
+      if (!bodyWrapper) {
+        console.warn('[Forklift] BodyWrapper not found');
+        return;
+      }
+      const doc = new DOMParser().parseFromString(html, 'text/html');
+      bodyWrapper.replaceChildren(...doc.body.childNodes);
+
+      const score = data?.review?.headerProps?.musicRating?.score;
+      updatePageWithScore(score);
+    })
+    .catch((err) => console.warn('[Forklift] Failed to fetch review JSON', err));
+}
 
   if (!isAlbumReviewPage()) return;
 
